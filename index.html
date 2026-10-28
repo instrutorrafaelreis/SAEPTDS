@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial Prático SAEP — Python + FastAPI (Clínica Veterinária)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --success: #22c55e;
+      --warning: #eab308;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, #0284c7, #1e3a8a);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 { margin: 0 0 0.5rem 0; font-size: 1.9rem; }
+    header p { margin: 0; color: #e0f2fe; font-size: 1.05rem; }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0.4rem 0.2rem 0;
+    }
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    nav.quick-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      background: var(--surface);
+      padding: 0.85rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      position: sticky;
+      top: 0.5rem;
+      z-index: 20;
+      margin-bottom: 1.5rem;
+    }
+    nav.quick-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.5rem;
+      background: var(--surface-2);
+      transition: background 0.15s;
+    }
+    nav.quick-nav a:hover { background: var(--primary); color: #0f172a; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 {
+      margin-top: 0;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .pts-pill {
+      font-size: 0.85rem;
+      background: #0369a1;
+      color: #fff;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+    }
+    .alert {
+      background: rgba(56, 189, 248, 0.1);
+      border-left: 4px solid var(--primary);
+      padding: 0.9rem 1rem;
+      border-radius: 0.4rem;
+      margin: 1rem 0;
+    }
+    .alert-success {
+      background: rgba(34, 197, 94, 0.12);
+      border-left: 4px solid var(--success);
+    }
+    .code-wrapper {
+      position: relative;
+      margin: 1rem 0;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: var(--primary);
+      color: #0f172a;
+      border: none;
+      border-radius: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .copy-btn:hover { opacity: 0.9; }
+    pre {
+      background: #090d16;
+      color: #e2e8f0;
+      padding: 1.1rem;
+      border-radius: 0.6rem;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+      font-size: 0.88rem;
+      margin: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.8rem;
+      text-align: left;
+    }
+    th { background: #0f172a; color: var(--primary); }
+    .progress-box {
+      background: #090d16;
+      padding: 1rem;
+      border-radius: 0.6rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 22px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      transition: width 0.25s ease;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.4rem 0;
+      cursor: pointer;
+    }
+    .check-item input { transform: scale(1.25); cursor: pointer; }
+    .der-container {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 0.6rem;
+      text-align: center;
+      overflow-x: auto;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📘 Tutorial Passo a Passo — Prova Prática SAEP</h1>
+  <p>Sistema de Gestão para Clínica Veterinária (Python + FastAPI Ultra-Simples)</p>
+  <div>
+    <span class="badge">🎯 Meta: 80% a 100% da Prova</span>
+    <span class="badge">⚡ 1 Único Arquivo Python</span>
+    <span class="badge">🚫 Zero JS / Zero CSS</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <nav class="quick-nav">
+    <a href="#simulador">📊 Simulador de Pontos</a>
+    <a href="#estrategia">🎯 Estratégia</a>
+    <a href="#passo1">1. Documentação</a>
+    <a href="#passo2">2. Diagrama DER</a>
+    <a href="#passo3">3. Banco SQL</a>
+    <a href="#bloco1">4.1 Criptografia e DB</a>
+    <a href="#bloco2">4.2 Login e Sessão</a>
+    <a href="#bloco3">4.3 Tela Principal</a>
+    <a href="#bloco4">4.4 Tutores (13 pts)</a>
+    <a href="#bloco5">4.5 Pets</a>
+    <a href="#bloco6">4.6 Agendamentos</a>
+  </nav>
+
+  <!-- SIMULADOR INTERATIVO DE NOTA -->
+  <section id="simulador" class="card">
+    <h2>📊 Simulador de Nota do Aluno (Checklist SAEP) <span class="pts-pill">Total: 37 Pontos</span></h2>
+    <p>Marque abaixo as entregas conforme for concluindo no seu treino para ver sua nota acumulada:</p>
+    <div class="progress-box">
+      <div style="display:flex; justify-content:space-between; font-weight:bold;">
+        <span id="score-text">Pontuação: 0 / 37 pontos (0%)</span>
+        <span id="status-text" style="color: var(--warning);">Continue avançando até atingir 80% (30 pts)</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div id="score-bar" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <label class="check-item"><input type="checkbox" class="chk" data-pts="3" onchange="calcScore()"> <b>Passo 1:</b> Documentação de Software (<code>documentacao.txt</code> — Requisitos Funcionais + Infraestrutura) — <b>3 pts</b></label>
+    <label class="check-item"><input type="checkbox" class="chk" data-pts="1" onchange="calcScore()"> <b>Passo 2:</b> Diagrama Entidade-Relacionamento (<code>der.svg</code> ou <code>.pdf</code>) — <b>1 pt</b></label>
+    <label class="check-item"><input type="checkbox" class="chk" data-pts="3" onchange="calcScore()"> <b>Passo 3:</b> Script do Banco de Dados (<code>saep_db.sql</code> com PK, FK e 3 registros por tabela) — <b>3 pts</b></label>
+    <label class="check-item"><input type="checkbox" class="chk" data-pts="6" onchange="calcScore()"> <b>Bloco 2 (Login):</b> Autenticação no banco + Sessão com expiração (<code>max_age=1800</code>) + Erro de login — <b>6 pts</b></label>
+    <label class="check-item"><input type="checkbox" class="chk" data-pts="4" onchange="calcScore()"> <b>Bloco 3 (Principal):</b> Exibir nome do usuário logado + Links (Tutor, Pet, Agendamento) + Sair — <b>4 pts</b></label>
+    <label class="check-item"><input type="checkbox" class="chk" data-pts="13" onchange="calcScore()"> <b>Bloco 4 (Tutor):</b> Listar, Excluir, Buscar, Cadastrar, Criptografar CPF/Senha (LGPD) e Editar — <b>13 pts (Chega a 81,1%!)</b></label>
+    <label class="check-item"><input type="checkbox" class="chk" data-pts="3" onchange="calcScore()"> <b>Bloco 5 (Pet):</b> Cadastrar novo Pet vinculando a um Tutor no <code>&lt;select&gt;</code> — <b>3 pts</b></label>
+    <label class="check-item"><input type="checkbox" class="chk" data-pts="5" onchange="calcScore()"> <b>Bloco 6 (Agendamento):</b> Listar ordenado por data com dados do Tutor/Pet + Atualizar data — <b>5 pts (100%!)</b></label>
+  </section>
+
+  <!-- ESTRATÉGIA -->
+  <section id="estrategia" class="card">
+    <h2>🎯 A Estratégia para Fazer em Menos de 2 Horas</h2>
+    <div class="alert alert-success">
+      <b>O Segredo da Prova:</b> O caderno do avaliador diz explicitamente: <i>"o estudante não precisa se preocupar com a estética"</i>. Portanto, não perca tempo com CSS ou JavaScript!
+    </div>
+    <ul>
+      <li><b>Zero JavaScript e Zero CSS:</b> O próprio FastAPI retorna HTML puro (<code>HTMLResponse</code>) e recebe os dados via <code>&lt;form method="post"&gt;</code>.</li>
+      <li><b>Apenas 1 arquivo Python (<code>sistema/main.py</code>):</b> Sem pastas <code>templates</code> ou arquivos separados.</li>
+      <li><b>Apenas 3 tabelas (<code>tutor</code>, <code>pet</code>, <code>agendamento</code>):</b> Como o Tutor já possui CPF e Senha criptografados (Item 5.4), usamos a própria tabela <code>tutor</code> para fazer o Login.</li>
+      <li><b>Edição na própria linha da tabela:</b> Cada linha do <code>&lt;table&gt;</code> já tem os <code>&lt;input&gt;</code> e o botão <code>Salvar</code>, economizando telas extras.</li>
+    </ul>
+    <h3>📁 Estrutura Obrigatória das Pastas para Entrega</h3>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>Pasta_Da_Prova/
+ ├── documentacao.txt       (Entrega 1: Requisitos Funcionais e Infraestrutura)
+ ├── der.svg ou der.pdf     (Entrega 2: Diagrama Entidade-Relacionamento)
+ ├── saep_db.sql            (Entrega 3: Script SQL de criação e população)
+ └── sistema/               (Entregas 4 a 8: Pasta obrigatória com nome "sistema")
+      └── main.py           (Código-fonte completo do sistema)</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 1 -->
+  <section id="passo1" class="card">
+    <h2>📝 PASSO 1: Documentação de Software (<code>documentacao.txt</code>) <span class="pts-pill">Vale 3 Pontos</span></h2>
+    <p>O edital aceita <code>.txt</code>, <code>.docx</code> ou <code>.pdf</code>. Crie o arquivo <b><code>documentacao.txt</code></b> com no mínimo 4 requisitos funcionais (Item 1.1) e a lista de infraestrutura (Item 1.2):</p>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>====================================================================
+ANEXO 1 - DOCUMENTAÇÃO DE SOFTWARE (SAEP - CLÍNICA VETERINÁRIA)
+====================================================================
+
+1.1 REQUISITOS FUNCIONAIS DO SISTEMA (Mínimo de 4 requisitos)
+
+- RF01 (Autenticação e Sessão): O sistema deve permitir o login de usuários validando as credenciais no banco de dados, exibindo mensagem de erro em caso de falha e criando uma sessão autenticada com tempo de expiração.
+- RF02 (Funcionalidade Principal): O sistema deve exibir na tela principal o nome do usuário autenticado na sessão, disponibilizar links de acesso aos módulos "Tutor", "Pet" e "Agendamento", e oferecer a opção de sair do sistema (logout).
+- RF03 (Gerenciamento de Tutores e LGPD): O sistema deve permitir cadastrar, listar, buscar por termo, editar e excluir tutores, garantindo que dados sensíveis (CPF e senha) sejam armazenados criptografados no banco de dados conforme a LGPD.
+- RF04 (Gerenciamento de Pets): O sistema deve permitir o cadastro e a listagem de pets, vinculando obrigatoriamente cada novo pet a um tutor existente no banco de dados.
+- RF05 (Gerenciamento de Agendamentos): O sistema deve permitir cadastrar agendamentos, atualizar a data de um agendamento existente e listar todos os agendamentos ordenados por data, exibindo os dados completos do pet e do seu respectivo tutor.
+
+1.2 LISTA DE REQUISITOS DE INFRAESTRUTURA
+
+- Linguagem de Programação: Python 3
+- Framework Web / Backend: FastAPI (executado via servidor ASGI Uvicorn)
+- Front-end: HTML5 (renderizado pelo próprio FastAPI)
+- Sistema Gerenciador de Banco de Dados (SGBD): MySQL / SQLite3
+- Sistema Operacional: Windows 10 (ou equivalente)
+- Editor de Código / IDE: Visual Studio Code (VS Code)</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 2 -->
+  <section id="passo2" class="card">
+    <h2>🗂️ PASSO 2: Diagrama Entidade-Relacionamento (DER) <span class="pts-pill">Vale 1 Ponto</span></h2>
+    <p>Desenhe as 3 tabelas e exporte como imagem ou PDF (Item 1.3):</p>
+    <div class="der-container">
+      <img src="./der.svg" alt="Diagrama Entidade Relacionamento" style="max-width:100%; height:auto;" />
+    </div>
+  </section>
+
+  <!-- PASSO 3 -->
+  <section id="passo3" class="card">
+    <h2>🗄️ PASSO 3: Script do Banco de Dados (<code>saep_db.sql</code>) <span class="pts-pill">Vale 3 Pontos</span></h2>
+    <p>Crie o arquivo <b><code>saep_db.sql</code></b> respeitando as chaves estrangeiras (Item 2.1 — Peso 2) e inserindo <b>3 registros em cada tabela</b> (Item 2.2 — Peso 1):</p>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>CREATE DATABASE IF NOT EXISTS saep_db;
+USE saep_db;
+
+-- 1. Tabela TUTOR (CPF e Senha em SHA-256 conforme LGPD)
+CREATE TABLE IF NOT EXISTS tutor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(20) NOT NULL,
+    cpf VARCHAR(64) NOT NULL,
+    login VARCHAR(50) NOT NULL,
+    senha VARCHAR(64) NOT NULL
+);
+
+-- 2. Tabela PET (Com Chave Estrangeira para TUTOR)
+CREATE TABLE IF NOT EXISTS pet (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    especie VARCHAR(50) NOT NULL,
+    tutor_id INT NOT NULL,
+    FOREIGN KEY (tutor_id) REFERENCES tutor(id) ON DELETE CASCADE
+);
+
+-- 3. Tabela AGENDAMENTO (Com Chave Estrangeira para PET)
+CREATE TABLE IF NOT EXISTS agendamento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    data_agendamento DATE NOT NULL,
+    servico VARCHAR(100) NOT NULL,
+    pet_id INT NOT NULL,
+    FOREIGN KEY (pet_id) REFERENCES pet(id) ON DELETE CASCADE
+);
+
+-- POPULAÇÃO INICIAL (3 registros por tabela - Senha '123' em SHA-256)
+INSERT INTO tutor (nome, telefone, cpf, login, senha) VALUES
+('Ana Silva', '11999990001', '2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3', 'ana', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'),
+('Carlos Souza', '11999990002', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'carlos', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'),
+('Mariana Costa', '11999990003', 'd4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35', 'mariana', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3');
+
+INSERT INTO pet (nome, especie, tutor_id) VALUES
+('Rex', 'Cachorro', 1),
+('Mimi', 'Gato', 2),
+('Thor', 'Cachorro', 3);
+
+INSERT INTO agendamento (data_agendamento, servico, pet_id) VALUES
+('2026-05-20', 'Consulta Geral', 1),
+('2026-03-10', 'Vacinação', 2),
+('2025-11-05', 'Banho e Tosa', 3);</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 4 - BLOCO 1 -->
+  <section id="bloco1" class="card">
+    <h2>💻 PASSO 4.1: Criptografia LGPD e Conexão no <code>sistema/main.py</code> <span class="pts-pill">Item 5.4 (3 Pontos)</span></h2>
+    <p>Crie a pasta <b><code>sistema</code></b> e o arquivo <b><code>main.py</code></b>. Comece com este Bloco 1:</p>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>import hashlib
+import sqlite3
+from fastapi import FastAPI, Form, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+
+app = FastAPI()
+
+# ITEM 5.4 (Peso 3): Criptografia de CPF e Senha (LGPD) em 2 linhas!
+def criptografar(texto: str) -> str:
+    return hashlib.sha256(texto.encode("utf-8")).hexdigest()
+
+def get_db():
+    conn = sqlite3.connect("saep_db.sqlite")
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
+
+def inicializar_banco():
+    conn = get_db()
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS tutor (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            telefone TEXT NOT NULL,
+            cpf TEXT NOT NULL,
+            login TEXT NOT NULL,
+            senha TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS pet (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            especie TEXT NOT NULL,
+            tutor_id INTEGER NOT NULL,
+            FOREIGN KEY (tutor_id) REFERENCES tutor(id) ON DELETE CASCADE
+        );
+        CREATE TABLE IF NOT EXISTS agendamento (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data_agendamento TEXT NOT NULL,
+            servico TEXT NOT NULL,
+            pet_id INTEGER NOT NULL,
+            FOREIGN KEY (pet_id) REFERENCES pet(id) ON DELETE CASCADE
+        );
+    """)
+    if conn.execute("SELECT COUNT(*) FROM tutor").fetchone()[0] == 0:
+        senha_padrao = criptografar("123")
+        conn.executemany(
+            "INSERT INTO tutor (nome, telefone, cpf, login, senha) VALUES (?, ?, ?, ?, ?)",
+            [
+                ("Ana Silva", "11999990001", criptografar("11111111111"), "ana", senha_padrao),
+                ("Carlos Souza", "11999990002", criptografar("22222222222"), "carlos", senha_padrao),
+                ("Mariana Costa", "11999990003", criptografar("33333333333"), "mariana", senha_padrao),
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO pet (nome, especie, tutor_id) VALUES (?, ?, ?)",
+            [("Rex", "Cachorro", 1), ("Mimi", "Gato", 2), ("Thor", "Cachorro", 3)],
+        )
+        conn.executemany(
+            "INSERT INTO agendamento (data_agendamento, servico, pet_id) VALUES (?, ?, ?)",
+            [
+                ("2026-05-20", "Consulta Geral", 1),
+                ("2026-03-10", "Vacinação", 2),
+                ("2025-11-05", "Banho e Tosa", 3),
+            ],
+        )
+        conn.commit()
+    conn.close()
+
+inicializar_banco()</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 4 - BLOCO 2 -->
+  <section id="bloco2" class="card">
+    <h2>🔐 PASSO 4.2: Login, Sessão com Expiração e Validação <span class="pts-pill">Vale 6 Pontos</span></h2>
+    <p>Atende aos itens <b>3.1</b> (autenticar e redirecionar), <b>3.2</b> (sessão com expiração <code>max_age=1800</code>) e <b>3.3</b> (mensagem de erro):</p>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>@app.get("/", response_class=HTMLResponse)
+def tela_login(erro: str = ""):
+    msg_erro = f"&lt;p style='color:red;'&gt;&lt;b&gt;{erro}&lt;/b&gt;&lt;/p&gt;" if erro else ""
+    return f"""
+    &lt;h2&gt;Login - Clínica Veterinária&lt;/h2&gt;
+    {msg_erro}
+    &lt;form method="post" action="/login"&gt;
+        Login: &lt;input name="login" required&gt; &lt;br&gt;&lt;br&gt;
+        Senha: &lt;input type="password" name="senha" required&gt; &lt;br&gt;&lt;br&gt;
+        &lt;button type="submit"&gt;Entrar&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;p&gt;&lt;small&gt;Dica de teste: Login &lt;b&gt;ana&lt;/b&gt; | Senha &lt;b&gt;123&lt;/b&gt;&lt;/small&gt;&lt;/p&gt;
+    """
+
+@app.post("/login")
+def fazer_login(login: str = Form(), senha: str = Form()):
+    conn = get_db()
+    user = conn.execute(
+        "SELECT * FROM tutor WHERE login = ? AND senha = ?",
+        (login, criptografar(senha)),
+    ).fetchone()
+    conn.close()
+
+    # Item 3.3: Validação caso haja falha de autenticação
+    if not user:
+        return RedirectResponse("/?erro=Login+ou+senha+invalidos!", status_code=303)
+
+    # Item 3.1 e 3.2: Redireciona e cria sessão com tempo de expiração (1800s = 30 min)
+    res = RedirectResponse("/principal", status_code=303)
+    res.set_cookie(key="usuario_sessao", value=user["nome"], max_age=1800)
+    return res
+
+@app.get("/logout")
+def logout():
+    # Item 4.2: Meio para sair do sistema
+    res = RedirectResponse("/", status_code=303)
+    res.delete_cookie("usuario_sessao")
+    return res</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 4 - BLOCO 3 -->
+  <section id="bloco3" class="card">
+    <h2>🏠 PASSO 4.3: Funcionalidade Principal do Sistema <span class="pts-pill">Vale 4 Pontos</span></h2>
+    <p>Atende aos itens <b>4.1</b> (exibe nome do usuário da sessão), <b>4.2</b> (sair do sistema) e <b>4.3</b> (acesso a Tutor, Pet e Agendamento):</p>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>@app.get("/principal", response_class=HTMLResponse)
+def tela_principal(request: Request):
+    usuario = request.cookies.get("usuario_sessao")
+    if not usuario:
+        return RedirectResponse("/?erro=Sessao+expirada.+Faca+login+novamente.", status_code=303)
+
+    return f"""
+    &lt;h2&gt;Sistema Clínica Veterinária - Tela Principal&lt;/h2&gt;
+    &lt;p&gt;Usuário logado: &lt;b&gt;{usuario}&lt;/b&gt; | &lt;a href="/logout"&gt;Sair do Sistema&lt;/a&gt;&lt;/p&gt;
+    &lt;hr&gt;
+    &lt;h3&gt;Menu de Funcionalidades (Item 4.3):&lt;/h3&gt;
+    &lt;ul&gt;
+        &lt;li&gt;&lt;a href="/tutores"&gt;Gerenciar Tutores&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href="/pets"&gt;Gerenciar Pets&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href="/agendamentos"&gt;Gerenciar Agendamentos&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+    """</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 4 - BLOCO 4 -->
+  <section id="bloco4" class="card">
+    <h2>👤 PASSO 4.4: Gerenciamento de Tutores (O Mais Valioso!) <span class="pts-pill">Vale 13 Pontos</span></h2>
+    <p>Atende aos itens <b>5.1</b> (listar/excluir), <b>5.2</b> (busca por termo), <b>5.3</b> (inserir novo tutor), <b>5.4</b> (criptografar CPF e senha) e <b>5.5</b> (editar tutor):</p>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>@app.get("/tutores", response_class=HTMLResponse)
+def listar_tutores(busca: str = ""):
+    conn = get_db()
+    if busca:
+        tutores = conn.execute("SELECT * FROM tutor WHERE nome LIKE ?", (f"%{busca}%",)).fetchall()
+    else:
+        tutores = conn.execute("SELECT * FROM tutor").fetchall()
+    conn.close()
+
+    linhas = ""
+    for t in tutores:
+        linhas += f"""
+        &lt;tr&gt;
+            &lt;form method="post" action="/tutores/editar"&gt;
+                &lt;td&gt;{t['id']}&lt;input type="hidden" name="id" value="{t['id']}"&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;input name="nome" value="{t['nome']}" required&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;input name="telefone" value="{t['telefone']}" required&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;input name="login" value="{t['login']}" required&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;small&gt;{t['cpf'][:12]}...&lt;/small&gt;&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;button type="submit"&gt;Salvar Edição&lt;/button&gt;
+                    &lt;a href="/tutores/excluir/{t['id']}"&gt;Excluir&lt;/a&gt;
+                &lt;/td&gt;
+            &lt;/form&gt;
+        &lt;/tr&gt;
+        """
+
+    return f"""
+    &lt;p&gt;&lt;a href="/principal"&gt;Voltar para Principal&lt;/a&gt;&lt;/p&gt;
+    &lt;h2&gt;Gerenciamento de Tutores&lt;/h2&gt;
+
+    &lt;h3&gt;Novo Tutor&lt;/h3&gt;
+    &lt;form method="post" action="/tutores/criar"&gt;
+        Nome: &lt;input name="nome" required&gt;
+        Telefone: &lt;input name="telefone" required&gt;
+        CPF: &lt;input name="cpf" required&gt;
+        Login: &lt;input name="login" required&gt;
+        Senha: &lt;input type="password" name="senha" required&gt;
+        &lt;button type="submit"&gt;Cadastrar Tutor&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;hr&gt;
+
+    &lt;form method="get" action="/tutores"&gt;
+        Buscar por nome: &lt;input name="busca" value="{busca}"&gt;
+        &lt;button type="submit"&gt;Buscar&lt;/button&gt;
+        &lt;a href="/tutores"&gt;Limpar&lt;/a&gt;
+    &lt;/form&gt;
+    &lt;br&gt;
+
+    &lt;table border="1" cellpadding="5"&gt;
+        &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Nome&lt;/th&gt;&lt;th&gt;Telefone&lt;/th&gt;&lt;th&gt;Login&lt;/th&gt;&lt;th&gt;CPF (Hash LGPD)&lt;/th&gt;&lt;th&gt;Ações&lt;/th&gt;&lt;/tr&gt;
+        {linhas}
+    &lt;/table&gt;
+    """
+
+@app.post("/tutores/criar")
+def criar_tutor(nome: str = Form(), telefone: str = Form(), cpf: str = Form(), login: str = Form(), senha: str = Form()):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO tutor (nome, telefone, cpf, login, senha) VALUES (?, ?, ?, ?, ?)",
+        (nome, telefone, criptografar(cpf), login, criptografar(senha)),
+    )
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/tutores", status_code=303)
+
+@app.post("/tutores/editar")
+def editar_tutor(id: int = Form(), nome: str = Form(), telefone: str = Form(), login: str = Form()):
+    conn = get_db()
+    conn.execute("UPDATE tutor SET nome = ?, telefone = ?, login = ? WHERE id = ?", (nome, telefone, login, id))
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/tutores", status_code=303)
+
+@app.get("/tutores/excluir/{id}")
+def excluir_tutor(id: int):
+    conn = get_db()
+    conn.execute("DELETE FROM tutor WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/tutores", status_code=303)</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 4 - BLOCO 5 -->
+  <section id="bloco5" class="card">
+    <h2>🐾 PASSO 4.5: Gerenciamento de Pets <span class="pts-pill">Vale 3 Pontos</span></h2>
+    <p>Atende ao item <b>6.1</b> (inserir novo pet associando-o a um tutor no banco de dados):</p>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>@app.get("/pets", response_class=HTMLResponse)
+def listar_pets():
+    conn = get_db()
+    tutores = conn.execute("SELECT id, nome FROM tutor").fetchall()
+    pets = conn.execute("""
+        SELECT p.id, p.nome, p.especie, t.nome AS tutor_nome
+        FROM pet p JOIN tutor t ON p.tutor_id = t.id
+    """).fetchall()
+    conn.close()
+
+    opcoes_tutor = "".join([f"&lt;option value='{t['id']}'&gt;{t['nome']}&lt;/option&gt;" for t in tutores])
+    linhas = "".join([
+        f"&lt;tr&gt;&lt;td&gt;{p['id']}&lt;/td&gt;&lt;td&gt;{p['nome']}&lt;/td&gt;&lt;td&gt;{p['especie']}&lt;/td&gt;&lt;td&gt;{p['tutor_nome']}&lt;/td&gt;&lt;/tr&gt;"
+        for p in pets
+    ])
+
+    return f"""
+    &lt;p&gt;&lt;a href="/principal"&gt;Voltar para Principal&lt;/a&gt;&lt;/p&gt;
+    &lt;h2&gt;Gerenciamento de Pets&lt;/h2&gt;
+
+    &lt;h3&gt;Novo Pet&lt;/h3&gt;
+    &lt;form method="post" action="/pets/criar"&gt;
+        Nome do Pet: &lt;input name="nome" required&gt;
+        Espécie: &lt;input name="especie" required&gt;
+        Tutor: &lt;select name="tutor_id" required&gt;{opcoes_tutor}&lt;/select&gt;
+        &lt;button type="submit"&gt;Cadastrar Pet&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;hr&gt;
+    &lt;table border="1" cellpadding="5"&gt;
+        &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Nome do Pet&lt;/th&gt;&lt;th&gt;Espécie&lt;/th&gt;&lt;th&gt;Tutor Associado&lt;/th&gt;&lt;/tr&gt;
+        {linhas}
+    &lt;/table&gt;
+    """
+
+@app.post("/pets/criar")
+def criar_pet(nome: str = Form(), especie: str = Form(), tutor_id: int = Form()):
+    conn = get_db()
+    conn.execute("INSERT INTO pet (nome, especie, tutor_id) VALUES (?, ?, ?)", (nome, especie, tutor_id))
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/pets", status_code=303)</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 4 - BLOCO 6 -->
+  <section id="bloco6" class="card">
+    <h2>📅 PASSO 4.6: Gerenciamento de Agendamentos <span class="pts-pill">Vale 5 Pontos</span></h2>
+    <p>Atende aos itens <b>7.1</b> (listar agendamentos ordenados por data trazendo dados do pet e do tutor) e <b>7.2</b> (atualizar a data de um agendamento):</p>
+    <div class="alert">
+      <b>Atenção à versão da sua Prova no <code>ORDER BY</code>:</b><br/>
+      • <b>Prova 1 (Dia):</b> <code>ORDER BY strftime('%d', a.data_agendamento) ASC</code><br/>
+      • <b>Prova 2 (Mês):</b> <code>ORDER BY strftime('%m', a.data_agendamento) ASC</code><br/>
+      • <b>Prova 3 (Ano):</b> <code>ORDER BY strftime('%Y', a.data_agendamento) ASC</code>
+    </div>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>@app.get("/agendamentos", response_class=HTMLResponse)
+def listar_agendamentos():
+    conn = get_db()
+    pets = conn.execute("SELECT id, nome FROM pet").fetchall()
+
+    agendamentos = conn.execute("""
+        SELECT a.id, a.data_agendamento, a.servico,
+               p.nome AS pet_nome, p.especie AS pet_especie,
+               t.nome AS tutor_nome, t.telefone AS tutor_telefone
+        FROM agendamento a
+        JOIN pet p ON a.pet_id = p.id
+        JOIN tutor t ON p.tutor_id = t.id
+        ORDER BY a.data_agendamento ASC
+    """).fetchall()
+    conn.close()
+
+    opcoes_pet = "".join([f"&lt;option value='{p['id']}'&gt;{p['nome']}&lt;/option&gt;" for p in pets])
+    linhas = ""
+    for a in agendamentos:
+        linhas += f"""
+        &lt;tr&gt;
+            &lt;td&gt;{a['id']}&lt;/td&gt;
+            &lt;td&gt;
+                &lt;form method="post" action="/agendamentos/atualizar" style="margin:0;"&gt;
+                    &lt;input type="hidden" name="id" value="{a['id']}"&gt;
+                    &lt;input type="date" name="data_agendamento" value="{a['data_agendamento']}" required&gt;
+                    &lt;button type="submit"&gt;Atualizar Data&lt;/button&gt;
+                &lt;/form&gt;
+            &lt;/td&gt;
+            &lt;td&gt;{a['servico']}&lt;/td&gt;
+            &lt;td&gt;{a['pet_nome']} ({a['pet_especie']})&lt;/td&gt;
+            &lt;td&gt;{a['tutor_nome']} - Tel: {a['tutor_telefone']}&lt;/td&gt;
+        &lt;/tr&gt;
+        """
+
+    return f"""
+    &lt;p&gt;&lt;a href="/principal"&gt;Voltar para Principal&lt;/a&gt;&lt;/p&gt;
+    &lt;h2&gt;Gerenciamento de Agendamentos&lt;/h2&gt;
+
+    &lt;h3&gt;Novo Agendamento&lt;/h3&gt;
+    &lt;form method="post" action="/agendamentos/criar"&gt;
+        Data: &lt;input type="date" name="data_agendamento" required&gt;
+        Serviço: &lt;input name="servico" required&gt;
+        Pet: &lt;select name="pet_id" required&gt;{opcoes_pet}&lt;/select&gt;
+        &lt;button type="submit"&gt;Agendar&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;hr&gt;
+    &lt;table border="1" cellpadding="5"&gt;
+        &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Data (Ordenada)&lt;/th&gt;&lt;th&gt;Serviço&lt;/th&gt;&lt;th&gt;Dados do Pet&lt;/th&gt;&lt;th&gt;Dados do Tutor&lt;/th&gt;&lt;/tr&gt;
+        {linhas}
+    &lt;/table&gt;
+    """
+
+@app.post("/agendamentos/criar")
+def criar_agendamento(data_agendamento: str = Form(), servico: str = Form(), pet_id: int = Form()):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO agendamento (data_agendamento, servico, pet_id) VALUES (?, ?, ?)",
+        (data_agendamento, servico, pet_id),
+    )
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/agendamentos", status_code=303)
+
+@app.post("/agendamentos/atualizar")
+def atualizar_data_agendamento(id: int = Form(), data_agendamento: str = Form()):
+    conn = get_db()
+    conn.execute("UPDATE agendamento SET data_agendamento = ? WHERE id = ?", (data_agendamento, id))
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/agendamentos", status_code=303)</pre>
+    </div>
+  </section>
+
+  <!-- PASSO 5 -->
+  <section class="card">
+    <h2>▶️ PASSO 5: Como Executar no Terminal</h2>
+    <div class="code-wrapper">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>cd sistema
+uvicorn main:app --reload</pre>
+    </div>
+    <p>Depois acesse <b><code>http://127.0.0.1:8000</code></b> no navegador e faça login com <b><code>ana</code></b> e senha <b><code>123</code></b>.</p>
+  </section>
+
+</div>
+
+<footer>
+  Preparatório SAEP — Curso Técnico em Desenvolvimento de Sistemas | Python + FastAPI
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.parentElement.querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      const old = btn.innerText;
+      btn.innerText = 'Copiado! ✓';
+      setTimeout(() => btn.innerText = old, 1800);
+    });
+  }
+
+  function calcScore() {
+    const checks = document.querySelectorAll('.chk');
+    let pts = 0;
+    checks.forEach(c => { if (c.checked) pts += parseInt(c.dataset.pts, 10); });
+    const pct = ((pts / 37) * 100).toFixed(1);
+    document.getElementById('score-text').innerText = `Pontuação: ${pts} / 37 pontos (${pct}%)`;
+    document.getElementById('score-bar').style.width = `${pct}%`;
+    const status = document.getElementById('status-text');
+    if (pts >= 37) {
+      status.innerText = '🏆 100% da Prova Concluída!';
+      status.style.color = '#22c55e';
+    } else if (pts >= 30) {
+      status.innerText = '✅ Meta de +80% Atingida com Sucesso!';
+      status.style.color = '#22c55e';
+    } else {
+      status.innerText = `Faltam ${30 - pts} pontos para atingir 80%`;
+      status.style.color = '#eab308';
+    }
+  }
+</script>
+
+</body>
+</html>
