@@ -1,4 +1,10 @@
 # 📘 Tutorial Passo a Passo — Prova Prática SAEP (Python + FastAPI)
+
+🌐 **Acesse o Tutorial Interativo Online (GitHub Pages):**  
+👉 **[https://instrutorrafaelreis.github.io/SAEPTDS/](https://instrutorrafaelreis.github.io/SAEPTDS/)**
+
+---
+
 **Curso:** Técnico em Desenvolvimento de Sistemas  
 **Tema:** Sistema de Gestão para Clínica Veterinária (Tutores, Pets e Agendamentos)  
 **Objetivo:** Garantir de **80% a 100% da nota** escrevendo o menor e mais simples código possível, sem perder tempo com CSS ou JavaScript.
@@ -7,7 +13,7 @@
 
 ## 🎯 A Estratégia para Passar com Folga (37 Pontos no Total)
 
-Na prova prática do SAEP você tem **3 horas** e **não tem internet**. A prova **não avalia beleza visual (CSS)**, ela avalia **funcionalidade**.
+Na prova prática do SAEP você tem **3 horas**. A prova **não avalia beleza visual (CSS)**, ela avalia **funcionalidade**.
 
 Por isso, nossa estratégia usa **4 atalhos inteligentes**:
 1. **Zero JavaScript e Zero CSS:** Usaremos apenas `<form>` puro do HTML dentro do próprio FastAPI (`HTMLResponse`).
@@ -19,11 +25,46 @@ Por isso, nossa estratégia usa **4 atalhos inteligentes**:
 ```text
 Pasta_Da_Entrega/
  ├── documentacao.txt       (Entrega 1: Requisitos Funcionais e Infraestrutura)
- ├── der.png ou der.pdf     (Entrega 2: Diagrama Entidade-Relacionamento)
+ ├── der.svg ou der.pdf     (Entrega 2: Diagrama Entidade-Relacionamento)
  ├── saep_db.sql            (Entrega 3: Script SQL de criação e população)
  └── sistema/               (Entregas 4 a 8: Pasta obrigatória com nome "sistema")
+      ├── venv/             (Ambiente virtual Python)
+      ├── requirements.txt  (Lista de bibliotecas utilizadas)
       └── main.py           (Código-fonte completo do sistema)
 ```
+
+---
+
+## ⚙️ PASSO 0: Criando o Ambiente Virtual (`venv`) e Instalando as Bibliotecas
+
+Antes de começar a programar o sistema, crie a pasta **`sistema`**, entre nela pelo terminal do VS Code (`Ctrl + '`) e configure o **Ambiente Virtual (`venv`)**:
+
+```powershell
+# 1. Cria a pasta obrigatória chamada "sistema" e entra nela
+mkdir sistema
+cd sistema
+
+# 2. Cria o ambiente virtual chamado "venv"
+python -m venv venv
+
+# 3. Ativa o ambiente virtual no Windows (PowerShell / CMD)
+.\venv\Scripts\activate
+
+# 4. Instala as 3 bibliotecas necessárias para o projeto
+pip install fastapi uvicorn python-multipart
+```
+
+> **💡 Dica caso o PowerShell bloqueie a ativação do `venv`:**  
+> Se aparecer um erro vermelho de *ExecutionPolicy*, rode antes:  
+> `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`  
+> E depois rode `.\venv\Scripts\activate` novamente.
+
+### 🔍 Para que serve cada comando e biblioteca instalada?
+* **`python -m venv venv`**: Cria uma pasta isolada (`venv`) apenas para as bibliotecas do seu projeto, evitando conflitos com outros programas do computador.
+* **`fastapi`**: É o framework web que cria as rotas do sistema (`@app.get`, `@app.post`) de forma rápida e simples.
+* **`uvicorn`**: É o servidor web local que coloca o código do FastAPI no ar no endereço `http://127.0.0.1:8000`.
+* **`python-multipart`**: **MUITO IMPORTANTE!** O FastAPI exige essa biblioteca sempre que usamos `Form()` para receber dados enviados por formulários HTML (`<form method="post">`). Sem ela, o FastAPI dá erro ao receber formulários!
+* **`sqlite3` e `hashlib`**: **Não precisam de `pip install`** porque já vêm embutidas por padrão no próprio Python!
 
 ---
 
@@ -32,7 +73,7 @@ Pasta_Da_Entrega/
 > - **1.1 (Peso 2):** Identificar no mínimo 4 requisitos funcionais.  
 > - **1.2 (Peso 1):** Identificar os requisitos de infraestrutura (SGBD e Linguagem).
 
-O caderno de prova permite entregar em formato **`.txt`**, `.docx` ou `.pdf`. Crie um arquivo chamado **`documentacao.txt`** (ou preencha o `documentacao.docx` fornecido pelo avaliador) com o seguinte conteúdo:
+O caderno de prova permite entregar em formato **`.txt`**, `.docx` ou `.pdf`. Crie um arquivo chamado **`documentacao.txt`** (fora da pasta `sistema`, na raiz da entrega):
 
 ```text
 1.1 REQUISITOS FUNCIONAIS DO SISTEMA (Mínimo 4)
@@ -55,22 +96,12 @@ O caderno de prova permite entregar em formato **`.txt`**, `.docx` ou `.pdf`. Cr
 > **Item avaliado:**  
 > - **1.3 (Peso 1):** Gerar o Diagrama Entidade-Relacionamento conforme descrito no caderno.
 
-Você pode desenhar rapidamente na ferramenta disponível no computador da prova (MySQL Workbench, brModelo, Draw.io ou LibreOffice Draw) e exportar como imagem ou PDF. O diagrama tem apenas **3 entidades**:
+![Diagrama Entidade Relacionamento](./der.svg)
 
-```
-+-----------------------+       1          N +-----------------------+       1          N +--------------------------+
-|         TUTOR         |--------------------|          PET          |--------------------|       AGENDAMENTO        |
-+-----------------------+                    +-----------------------+                    +--------------------------+
-| PK  id (INT)          |                    | PK  id (INT)          |                    | PK  id (INT)             |
-|     nome (VARCHAR)    |                    |     nome (VARCHAR)    |                    |     data_agendamento     |
-|     telefone (VARCHAR)|                    |     especie (VARCHAR) |                    |     servico (VARCHAR)    |
-|     cpf (VARCHAR)     |                    | FK  tutor_id (INT)    |                    | FK  pet_id (INT)         |
-|     login (VARCHAR)   |                    +-----------------------+                    +--------------------------+
-|     senha (VARCHAR)   |
-+-----------------------+
-```
-* **Relacionamento 1:** Um `TUTOR` possui vários `PET`s (`1:N` — chave estrangeira `tutor_id` na tabela `pet`).
-* **Relacionamento 2:** Um `PET` possui vários `AGENDAMENTO`s (`1:N` — chave estrangeira `pet_id` na tabela `agendamento`).
+### 🔍 Explicação do Diagrama DER:
+* **Tabela `TUTOR`**: Guarda os dados do dono do animal (`id`, `nome`, `telefone`, `cpf`, `login`, `senha`). Aqui `id` é a **Chave Primária (`PK`)**.
+* **Tabela `PET`**: Guarda os dados do animal (`id`, `nome`, `especie`, `tutor_id`). Como todo pet pertence a um tutor, a coluna `tutor_id` é uma **Chave Estrangeira (`FK`)** que aponta para `tutor(id)` — relação **1 para N** (1 tutor pode ter vários pets).
+* **Tabela `AGENDAMENTO`**: Guarda a data e o serviço (`id`, `data_agendamento`, `servico`, `pet_id`). A coluna `pet_id` é uma **Chave Estrangeira (`FK`)** que aponta para `pet(id)` — relação **1 para N** (1 pet pode ter vários agendamentos).
 
 ---
 
@@ -79,8 +110,7 @@ Você pode desenhar rapidamente na ferramenta disponível no computador da prova
 > - **2.1 (Peso 2):** Criar as tabelas respeitando a chave estrangeira (`FOREIGN KEY`) de cada relacionamento.  
 > - **2.2 (Peso 1):** Inserir pelo menos **3 registros em cada uma das tabelas**.
 
-Crie o arquivo **`saep_db.sql`** na raiz da entrega.  
-**Regra de ouro:** Sempre crie as tabelas na ordem **`tutor` -> `pet` -> `agendamento`** para que as chaves estrangeiras funcionem de primeira!
+Crie o arquivo **`saep_db.sql`** na raiz da entrega:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS saep_db;
@@ -132,18 +162,21 @@ INSERT INTO agendamento (data_agendamento, servico, pet_id) VALUES
 ('2025-11-05', 'Banho e Tosa', 3);
 ```
 
+### 🔍 Explicação do Código SQL:
+* **`AUTO_INCREMENT PRIMARY KEY`**: Faz o banco gerar o número do `id` sozinho (1, 2, 3...) sem precisarmos digitar o ID no cadastro.
+* **`VARCHAR(64)` em `cpf` e `senha`**: Como o algoritmo `SHA-256` transforma qualquer texto em um código criptografado de 64 caracteres, usamos `VARCHAR(64)`.
+* **`FOREIGN KEY (tutor_id) REFERENCES tutor(id) ON DELETE CASCADE`**: Cria o vínculo obrigatório entre Pet e Tutor (Item 2.1). O `ON DELETE CASCADE` evita erros quando você clicar em "Excluir Tutor" na tela: se um tutor for excluído, o banco apaga automaticamente os pets vinculados a ele sem travar o sistema!
+
 ---
 
 ## 💻 PASSO 4: Criando o Sistema em Python + FastAPI (Vale 29 Pontos)
 
-Crie uma pasta chamada **`sistema`** e, dentro dela, crie o arquivo **`main.py`**.  
-Vamos construir o `main.py` em **6 pequenos blocos** na ordem exata da prova.
+Dentro da pasta **`sistema`**, crie o arquivo **`main.py`**.  
+Abaixo estão os **6 blocos** do código com a explicação detalhada do que cada parte faz.
 
 ---
 
 ### 🔹 Bloco 1: Importações, Criptografia LGPD e Banco de Dados
-> **Por que esse bloco é importante?**  
-> A função `criptografar()` tem **apenas 2 linhas** e usa `hashlib` (que já vem no Python). Só ela garante os **3 pontos do Item 5.4 (LGPD)**! Além disso, a função `inicializar_banco()` já cria e popula o banco automaticamente quando você roda o sistema.
 
 ```python
 import hashlib
@@ -219,15 +252,22 @@ def inicializar_banco():
 inicializar_banco()
 ```
 
+#### 🔍 Entendendo o Código do Bloco 1:
+* **`from fastapi import FastAPI, Form, Request`**:
+  * `FastAPI`: Cria a aplicação web (`app = FastAPI()`).
+  * `Form`: Permite receber os campos digitados nos formulários `<form method="post">`.
+  * `Request`: Permite ler os cookies salvos no navegador (usado para saber quem está logado na sessão).
+* **`from fastapi.responses import HTMLResponse, RedirectResponse`**:
+  * `HTMLResponse`: Diz ao FastAPI para renderizar o texto retornado como uma página HTML de verdade no navegador (e não como JSON).
+  * `RedirectResponse`: Redireciona o usuário de uma página para outra (ex.: após fazer login, manda para `/principal`).
+* **`hashlib.sha256(texto.encode("utf-8")).hexdigest()`**: Converte o texto em bytes (`.encode("utf-8")`), aplica a criptografia padrão **SHA-256** e devolve o código hexadecimal de 64 caracteres (`.hexdigest()`). Atende 100% à exigência da **LGPD (Item 5.4 — Peso 3)**.
+* **`conn.row_factory = sqlite3.Row`**: Permite acessar os dados vindos do banco pelo **nome da coluna** (ex.: `t['nome']`) em vez de usar números (`t[1]`), deixando o código muito mais fácil de ler.
+* **`conn.execute("PRAGMA foreign_keys = ON")`**: Ativa a validação de chave estrangeira e o `ON DELETE CASCADE` no SQLite.
+* **`if conn.execute("SELECT COUNT(*) FROM tutor").fetchone()[0] == 0:`**: Verifica se a tabela `tutor` está vazia. Se estiver vazia (primeira vez que o sistema roda), insere automaticamente os 3 tutores, 3 pets e 3 agendamentos!
+
 ---
 
 ### 🔹 Bloco 2: Funcionalidade de Login (Vale 6 Pontos)
-> **Itens avaliados:**  
-> - **3.1 (Peso 1):** Autenticar login e senha no banco e redirecionar para `/principal`.  
-> - **3.2 (Peso 3):** Criar sessão com tempo de expiração (`max_age=1800` = 30 minutos).  
-> - **3.3 (Peso 2):** Exibir mensagem de erro caso o login falhe.
-
-Adicione abaixo do Bloco 1:
 
 ```python
 @app.get("/", response_class=HTMLResponse)
@@ -269,15 +309,16 @@ def logout():
     return res
 ```
 
+#### 🔍 Entendendo o Código do Bloco 2:
+* **`@app.get("/", response_class=HTMLResponse)`**: Cria a rota inicial (`/`). Se houver um parâmetro `?erro=...` na URL, a variável `erro` recebe a mensagem e exibe em vermelho (`msg_erro`) — cumprindo o **Item 3.3 (Peso 2)**.
+* **`login: str = Form(), senha: str = Form()`**: Pega exatamente o que o usuário digitou nos campos `<input name="login">` e `<input name="senha">`.
+* **`(login, criptografar(senha))`**: Como a senha foi salva criptografada no banco, precisamos passar `criptografar(senha)` na hora do `SELECT` para comparar os dois hashes!
+* **`status_code=303`**: No protocolo HTTP, quando um formulário `POST` termina e queremos redirecionar o navegador para uma página `GET`, usamos o código `303` (*See Other*).
+* **`res.set_cookie(key="usuario_sessao", value=user["nome"], max_age=1800)`**: Cria a sessão do usuário autenticado salvando o nome dele no cookie `usuario_sessao` e definindo o tempo de expiração para **`1800` segundos (30 minutos)** — garantindo os **3 pontos do Item 3.2**!
+
 ---
 
 ### 🔹 Bloco 3: Funcionalidade Principal do Sistema (Vale 4 Pontos)
-> **Itens avaliados:**  
-> - **4.1 (Peso 2):** Recuperar o nome do usuário na sessão e exibir na tela principal.  
-> - **4.2 (Peso 1):** Disponibilizar botão/link para sair do sistema (`/logout`).  
-> - **4.3 (Peso 1):** Disponibilizar links para acessar **Tutor**, **Pet** e **Agendamento**.
-
-Adicione abaixo do Bloco 2:
 
 ```python
 @app.get("/principal", response_class=HTMLResponse)
@@ -300,17 +341,15 @@ def tela_principal(request: Request):
     """
 ```
 
+#### 🔍 Entendendo o Código do Bloco 3:
+* **`usuario = request.cookies.get("usuario_sessao")`**: Lê o cookie da sessão que criamos no login (**Item 4.1 — Peso 2**).
+* **`if not usuario:`**: Se o usuário tentar entrar em `/principal` sem estar logado (ou depois que os 1800 segundos expirarem), o sistema bloqueia e manda de volta para a tela de login!
+* **`<a href="/logout">Sair do Sistema</a>`**: Chama a rota `/logout` que apaga o cookie (`delete_cookie`), encerrando a sessão (**Item 4.2 — Peso 1**).
+* **`<a href="/tutores">`, `/pets`, `/agendamentos`**: Links de navegação exigidos pelo **Item 4.3 (Peso 1)**.
+
 ---
 
 ### 🔹 Bloco 4: Gerenciamento de Tutor (Vale 13 Pontos — O Mais Importante!)
-> **Itens avaliados:**  
-> - **5.1 (Peso 2):** Listar e excluir tutores cadastrados.  
-> - **5.2 (Peso 3):** Buscar tutor por termo (`WHERE nome LIKE ?`).  
-> - **5.3 (Peso 2):** Inserir novo tutor no banco e atualizar a lista.  
-> - **5.4 (Peso 3):** Criptografar CPF e senha do tutor ao salvar.  
-> - **5.5 (Peso 3):** Editar um tutor já existente no banco.
-
-Adicione abaixo do Bloco 3:
 
 ```python
 @app.get("/tutores", response_class=HTMLResponse)
@@ -408,13 +447,14 @@ def excluir_tutor(id: int):
     return RedirectResponse("/tutores", status_code=303)
 ```
 
+#### 🔍 Entendendo o Código do Bloco 4:
+* **`WHERE nome LIKE ?` com `(f"%{busca}%",)`**: Os símbolos `%` antes e depois do texto buscado fazem o SQL procurar qualquer tutor que contenha aquela palavra em qualquer parte do nome (**Item 5.2 — Peso 3**).
+* **Por que há um `<form method="post" action="/tutores/editar">` dentro do `<tr>`?**: Esse é o maior atalho da prova! Em vez de criar uma segunda tela de edição, cada linha da tabela já mostra o nome, telefone e login dentro de uma caixinha `<input>` editável, junto com um `<input type="hidden" name="id">` invisível que guarda o ID daquele tutor. Ao alterar qualquer letra e clicar em **Salvar Edição**, ele faz o `UPDATE` no banco (**Item 5.5 — Peso 3**).
+* **`(nome, telefone, criptografar(cpf), login, criptografar(senha))`**: Ao criar um novo tutor, aplicamos `criptografar()` tanto no `cpf` quanto na `senha` antes de salvar no banco (**Itens 5.3 e 5.4 — 5 pontos somados**).
+
 ---
 
 ### 🔹 Bloco 5: Gerenciamento de Pets (Vale 3 Pontos)
-> **Item avaliado:**  
-> - **6.1 (Peso 3):** Inserir um novo pet associando-o a um tutor no banco de dados (usando `<select name="tutor_id">`).
-
-Adicione abaixo do Bloco 4:
 
 ```python
 @app.get("/pets", response_class=HTMLResponse)
@@ -460,19 +500,13 @@ def criar_pet(nome: str = Form(), especie: str = Form(), tutor_id: int = Form())
     return RedirectResponse("/pets", status_code=303)
 ```
 
+#### 🔍 Entendendo o Código do Bloco 5:
+* **`opcoes_tutor = "".join([f"<option value='{t['id']}'>{t['nome']}</option>" for t in tutores])`**: Percorre todos os tutores cadastrados no banco e cria as opções `<option>` da caixa de seleção `<select name="tutor_id">`. Assim o usuário vê o **nome** do tutor na tela, mas o formulário envia o **`id`** (`tutor_id`) para gravar na chave estrangeira (**Item 6.1 — Peso 3**).
+* **`FROM pet p JOIN tutor t ON p.tutor_id = t.id`**: Junta a tabela `pet` com a tabela `tutor` para exibir o nome do dono ao lado do nome do pet.
+
 ---
 
 ### 🔹 Bloco 6: Gerenciamento de Agendamentos (Vale 5 Pontos)
-> **Itens avaliados:**  
-> - **7.1 (Peso 3):** Listar os agendamentos ordenados por data trazendo os dados do tutor e do pet.  
->   - **Atenção ao tipo da sua prova no `ORDER BY`:**  
->     - **Prova 1 (Dia):** `ORDER BY strftime('%d', a.data_agendamento) ASC`  
->     - **Prova 2 (Mês):** `ORDER BY strftime('%m', a.data_agendamento) ASC`  
->     - **Prova 3 (Ano):** `ORDER BY strftime('%Y', a.data_agendamento) ASC`  
->     - **Data Completa:** `ORDER BY a.data_agendamento ASC`  
-> - **7.2 (Peso 2):** Atualizar a data de um agendamento existente.
-
-Adicione abaixo do Bloco 5:
 
 ```python
 @app.get("/agendamentos", response_class=HTMLResponse)
@@ -550,23 +584,26 @@ def atualizar_data_agendamento(id: int = Form(), data_agendamento: str = Form())
     return RedirectResponse("/agendamentos", status_code=303)
 ```
 
+#### 🔍 Entendendo o Código do Bloco 6:
+* **Duplo `JOIN` (`JOIN pet` e `JOIN tutor`)**: O enunciado pede que a listagem de agendamentos mostre também os dados do pet e do tutor. Como o agendamento tem `pet_id` e o pet tem `tutor_id`, fazemos dois `JOIN`s seguidos para buscar tudo em uma única consulta (**Item 7.1 — Peso 3**).
+* **Como mudar o `ORDER BY` conforme o número da sua Prova (1, 2 ou 3)**:
+  * **Ordenação por data completa**: `ORDER BY a.data_agendamento ASC`
+  * **Prova 1 (Ordenar por Dia)**: `ORDER BY strftime('%d', a.data_agendamento) ASC`
+  * **Prova 2 (Ordenar por Mês)**: `ORDER BY strftime('%m', a.data_agendamento) ASC`
+  * **Prova 3 (Ordenar por Ano)**: `ORDER BY strftime('%Y', a.data_agendamento) ASC`
+* **Atualizar Data na própria linha (`/agendamentos/atualizar`)**: Cada agendamento já exibe sua data dentro de um `<input type="date">`. Basta escolher uma nova data no calendário e clicar em **Atualizar Data** para rodar o `UPDATE agendamento SET data_agendamento = ? WHERE id = ?` (**Item 7.2 — Peso 2**).
+
 ---
 
 ## ▶️ PASSO 5: Como Rodar e Testar o Sistema
 
-1. Abra o terminal na pasta `sistema`:
-   ```bash
-   cd sistema
-   uvicorn main:app --reload
-   ```
-2. Abra o navegador em: **`http://127.0.0.1:8000`**
-3. Faça o teste completo como o avaliador fará:
-   * [x] Digite uma senha errada para ver a mensagem vermelha de erro (**Item 3.3**).
-   * [x] Entre com login **`ana`** e senha **`123`** (**Itens 3.1 e 3.2**).
-   * [x] Veja o nome `Ana Silva` no topo e os 3 links do menu (**Itens 4.1, 4.2 e 4.3**).
-   * [x] Clique em **Tutor**: busque por `Ana` (**Item 5.2**), cadastre um novo tutor (**Itens 5.3 e 5.4**), altere o telefone de um tutor e clique em `Salvar Edição` (**Item 5.5**), e teste o botão `Excluir` (**Item 5.1**).
-   * [x] Clique em **Pet**: cadastre um novo pet selecionando o tutor na caixinha `<select>` (**Item 6.1**).
-   * [x] Clique em **Agendamento**: veja a lista ordenada por data (**Item 7.1**) e mude a data de um agendamento clicando em `Atualizar Data` (**Item 7.2**).
+Com o ambiente virtual (`venv`) ativado dentro da pasta `sistema`, execute:
+
+```powershell
+uvicorn main:app --reload
+```
+* O parâmetro `--reload` reinicia o servidor automaticamente sempre que você salvar alterações no `main.py`.
+* Abra o navegador em: **`http://127.0.0.1:8000`** (Login: **`ana`** | Senha: **`123`**).
 
 ---
 

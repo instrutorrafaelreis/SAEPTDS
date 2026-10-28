@@ -22,7 +22,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.65;
     }
     header {
       background: linear-gradient(135deg, #0284c7, #1e3a8a);
@@ -49,7 +49,7 @@
     nav.quick-nav {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.45rem;
       background: var(--surface);
       padding: 0.85rem;
       border-radius: 0.75rem;
@@ -62,9 +62,9 @@
     nav.quick-nav a {
       color: var(--text);
       text-decoration: none;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
       font-weight: 600;
-      padding: 0.4rem 0.8rem;
+      padding: 0.4rem 0.75rem;
       border-radius: 0.5rem;
       background: var(--surface-2);
       transition: background 0.15s;
@@ -106,6 +106,27 @@
       background: rgba(34, 197, 94, 0.12);
       border-left: 4px solid var(--success);
     }
+    .explain-box {
+      background: #0b1120;
+      border: 1px solid #334155;
+      border-left: 4px solid #a855f7;
+      border-radius: 0.5rem;
+      padding: 1rem 1.2rem;
+      margin-top: 1rem;
+    }
+    .explain-box h3 {
+      margin-top: 0;
+      margin-bottom: 0.6rem;
+      color: #c084fc;
+      font-size: 1.05rem;
+    }
+    .explain-box ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+    .explain-box li {
+      margin-bottom: 0.5rem;
+    }
     .code-wrapper {
       position: relative;
       margin: 1rem 0;
@@ -134,17 +155,14 @@
       font-size: 0.88rem;
       margin: 0;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 0.75rem;
+    code {
+      background: rgba(255,255,255,0.1);
+      padding: 0.12rem 0.38rem;
+      border-radius: 0.3rem;
+      font-family: Consolas, monospace;
+      font-size: 0.9em;
     }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 0.65rem 0.8rem;
-      text-align: left;
-    }
-    th { background: #0f172a; color: var(--primary); }
+    pre code { background: none; padding: 0; }
     .progress-box {
       background: #090d16;
       padding: 1rem;
@@ -193,21 +211,21 @@
 
 <header>
   <h1>📘 Tutorial Passo a Passo — Prova Prática SAEP</h1>
-  <p>Sistema de Gestão para Clínica Veterinária (Python + FastAPI Ultra-Simples)</p>
+  <p>Sistema de Gestão para Clínica Veterinária (Python + FastAPI Comentado Linha por Linha)</p>
   <div>
     <span class="badge">🎯 Meta: 80% a 100% da Prova</span>
-    <span class="badge">⚡ 1 Único Arquivo Python</span>
-    <span class="badge">🚫 Zero JS / Zero CSS</span>
+    <span class="badge">⚙️ Com Ambiente Virtual (venv)</span>
+    <span class="badge">🔍 Explicação Detalhada de Cada Código</span>
   </div>
 </header>
 
 <div class="container">
 
   <nav class="quick-nav">
-    <a href="#simulador">📊 Simulador de Pontos</a>
-    <a href="#estrategia">🎯 Estratégia</a>
+    <a href="#simulador">📊 Simulador</a>
+    <a href="#passo0">0. Venv e Bibliotecas</a>
     <a href="#passo1">1. Documentação</a>
-    <a href="#passo2">2. Diagrama DER</a>
+    <a href="#passo2">2. DER</a>
     <a href="#passo3">3. Banco SQL</a>
     <a href="#bloco1">4.1 Criptografia e DB</a>
     <a href="#bloco2">4.2 Login e Sessão</a>
@@ -241,34 +259,49 @@
     <label class="check-item"><input type="checkbox" class="chk" data-pts="5" onchange="calcScore()"> <b>Bloco 6 (Agendamento):</b> Listar ordenado por data com dados do Tutor/Pet + Atualizar data — <b>5 pts (100%!)</b></label>
   </section>
 
-  <!-- ESTRATÉGIA -->
-  <section id="estrategia" class="card">
-    <h2>🎯 A Estratégia para Fazer em Menos de 2 Horas</h2>
-    <div class="alert alert-success">
-      <b>O Segredo da Prova:</b> O caderno do avaliador diz explicitamente: <i>"o estudante não precisa se preocupar com a estética"</i>. Portanto, não perca tempo com CSS ou JavaScript!
-    </div>
-    <ul>
-      <li><b>Zero JavaScript e Zero CSS:</b> O próprio FastAPI retorna HTML puro (<code>HTMLResponse</code>) e recebe os dados via <code>&lt;form method="post"&gt;</code>.</li>
-      <li><b>Apenas 1 arquivo Python (<code>sistema/main.py</code>):</b> Sem pastas <code>templates</code> ou arquivos separados.</li>
-      <li><b>Apenas 3 tabelas (<code>tutor</code>, <code>pet</code>, <code>agendamento</code>):</b> Como o Tutor já possui CPF e Senha criptografados (Item 5.4), usamos a própria tabela <code>tutor</code> para fazer o Login.</li>
-      <li><b>Edição na própria linha da tabela:</b> Cada linha do <code>&lt;table&gt;</code> já tem os <code>&lt;input&gt;</code> e o botão <code>Salvar</code>, economizando telas extras.</li>
-    </ul>
-    <h3>📁 Estrutura Obrigatória das Pastas para Entrega</h3>
+  <!-- PASSO 0: VENV E BIBLIOTECAS -->
+  <section id="passo0" class="card">
+    <h2>⚙️ PASSO 0: Criando o Ambiente Virtual (<code>venv</code>) e Instalando as Bibliotecas <span class="pts-pill">Preparação</span></h2>
+    <p>Antes de criar o código do sistema, abra o terminal do VS Code (<code>Ctrl + '</code>), crie a pasta obrigatória <b><code>sistema</code></b>, crie o ambiente virtual e instale as bibliotecas necessárias:</p>
     <div class="code-wrapper">
       <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
-      <pre>Pasta_Da_Prova/
- ├── documentacao.txt       (Entrega 1: Requisitos Funcionais e Infraestrutura)
- ├── der.svg ou der.pdf     (Entrega 2: Diagrama Entidade-Relacionamento)
- ├── saep_db.sql            (Entrega 3: Script SQL de criação e população)
- └── sistema/               (Entregas 4 a 8: Pasta obrigatória com nome "sistema")
-      └── main.py           (Código-fonte completo do sistema)</pre>
+      <pre># 1. Cria a pasta obrigatória chamada "sistema" e entra nela
+mkdir sistema
+cd sistema
+
+# 2. Cria o ambiente virtual isolado chamado "venv"
+python -m venv venv
+
+# 3. Ativa o ambiente virtual no Windows
+.\venv\Scripts\activate
+
+# 4. Instala as 3 bibliotecas necessárias para o FastAPI com Formulários HTML
+pip install fastapi uvicorn python-multipart</pre>
+    </div>
+
+    <div class="alert">
+      <b>💡 Dica caso o PowerShell bloqueie o comando <code>.\venv\Scripts\activate</code>:</b><br/>
+      Se aparecer um erro vermelho de permissão (<i>ExecutionPolicy</i>), execute este comando antes e depois ative novamente:<br/>
+      <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code>
+    </div>
+
+    <div class="explain-box">
+      <h3>🔍 Para que serve cada comando e biblioteca instalada?</h3>
+      <ul>
+        <li><code>python -m venv venv</code>: Cria um ambiente virtual Python isolado dentro da pasta <code>venv</code>. Assim as bibliotecas instaladas não entram em conflito com o restante do computador.</li>
+        <li><code>.\venv\Scripts\activate</code>: Ativa o ambiente virtual (você verá <code>(venv)</code> verde no início da linha do terminal).</li>
+        <li><code>fastapi</code>: Framework Python usado para criar as rotas web (<code>@app.get</code> e <code>@app.post</code>).</li>
+        <li><code>uvicorn</code>: Servidor web que executa a aplicação FastAPI localmente na porta <code>8000</code>.</li>
+        <li><code>python-multipart</code>: <b>Obrigatório!</b> O FastAPI precisa dessa biblioteca para ler dados enviados por formulários HTML (<code>&lt;form method="post"&gt;</code> usando <code>Form()</code>). Sem ela, o envio de formulário falha!</li>
+        <li><code>sqlite3</code> e <code>hashlib</code>: <b>Não precisam ser instaladas com <code>pip</code></b> porque já vêm nativas dentro do próprio Python!</li>
+      </ul>
     </div>
   </section>
 
   <!-- PASSO 1 -->
   <section id="passo1" class="card">
     <h2>📝 PASSO 1: Documentação de Software (<code>documentacao.txt</code>) <span class="pts-pill">Vale 3 Pontos</span></h2>
-    <p>O edital aceita <code>.txt</code>, <code>.docx</code> ou <code>.pdf</code>. Crie o arquivo <b><code>documentacao.txt</code></b> com no mínimo 4 requisitos funcionais (Item 1.1) e a lista de infraestrutura (Item 1.2):</p>
+    <p>O edital aceita <code>.txt</code>, <code>.docx</code> ou <code>.pdf</code>. Crie o arquivo <b><code>documentacao.txt</code></b> (fora da pasta <code>sistema</code>) com no mínimo 4 requisitos funcionais (Item 1.1) e a lista de infraestrutura (Item 1.2):</p>
     <div class="code-wrapper">
       <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
       <pre>====================================================================
@@ -300,6 +333,14 @@ ANEXO 1 - DOCUMENTAÇÃO DE SOFTWARE (SAEP - CLÍNICA VETERINÁRIA)
     <p>Desenhe as 3 tabelas e exporte como imagem ou PDF (Item 1.3):</p>
     <div class="der-container">
       <img src="./der.svg" alt="Diagrama Entidade Relacionamento" style="max-width:100%; height:auto;" />
+    </div>
+    <div class="explain-box">
+      <h3>🔍 Entendendo o Diagrama DER</h3>
+      <ul>
+        <li><b>Tabela <code>TUTOR</code>:</b> Possui a chave primária <code>id (PK)</code> e armazena os dados do tutor, incluindo <code>cpf</code> e <code>senha</code> criptografados.</li>
+        <li><b>Relação <code>TUTOR (1) &rarr; (N) PET</code>:</b> Um tutor pode ter vários pets. Por isso a tabela <code>PET</code> recebe a chave estrangeira <code>tutor_id (FK)</code>.</li>
+        <li><b>Relação <code>PET (1) &rarr; (N) AGENDAMENTO</code>:</b> Um pet pode ter vários agendamentos. Por isso a tabela <code>AGENDAMENTO</code> recebe a chave estrangeira <code>pet_id (FK)</code>.</li>
+      </ul>
     </div>
   </section>
 
@@ -356,12 +397,20 @@ INSERT INTO agendamento (data_agendamento, servico, pet_id) VALUES
 ('2026-03-10', 'Vacinação', 2),
 ('2025-11-05', 'Banho e Tosa', 3);</pre>
     </div>
+    <div class="explain-box">
+      <h3>🔍 Entendendo o Código SQL Linha por Linha</h3>
+      <ul>
+        <li><code>id INT AUTO_INCREMENT PRIMARY KEY</code>: Define o identificador único de cada linha e incrementa o número automaticamente (1, 2, 3...) a cada novo cadastro.</li>
+        <li><code>VARCHAR(64)</code> para <code>cpf</code> e <code>senha</code>: O algoritmo <code>SHA-256</code> gera sempre um texto criptografado de 64 caracteres.</li>
+        <li><code>FOREIGN KEY (tutor_id) REFERENCES tutor(id) ON DELETE CASCADE</code>: Cria a chave estrangeira obrigatória (Item 2.1). O comando <code>ON DELETE CASCADE</code> garante que, se você excluir um tutor na tela do sistema, os pets dele também sejam removidos sem dar erro de chave estrangeira!</li>
+      </ul>
+    </div>
   </section>
 
   <!-- PASSO 4 - BLOCO 1 -->
   <section id="bloco1" class="card">
     <h2>💻 PASSO 4.1: Criptografia LGPD e Conexão no <code>sistema/main.py</code> <span class="pts-pill">Item 5.4 (3 Pontos)</span></h2>
-    <p>Crie a pasta <b><code>sistema</code></b> e o arquivo <b><code>main.py</code></b>. Comece com este Bloco 1:</p>
+    <p>Dentro da pasta <b><code>sistema</code></b>, crie o arquivo <b><code>main.py</code></b> e cole o Bloco 1:</p>
     <div class="code-wrapper">
       <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
       <pre>import hashlib
@@ -434,6 +483,16 @@ def inicializar_banco():
 
 inicializar_banco()</pre>
     </div>
+    <div class="explain-box">
+      <h3>🔍 Entendendo o Código do Bloco 1</h3>
+      <ul>
+        <li><code>from fastapi import FastAPI, Form, Request</code>: Importa a classe principal <code>FastAPI</code>, o leitor de formulários <code>Form</code> e o objeto <code>Request</code> (para ler os cookies da sessão).</li>
+        <li><code>HTMLResponse</code> e <code>RedirectResponse</code>: Permitem que o FastAPI devolva páginas HTML diretamente e redirecione o usuário de uma rota para outra.</li>
+        <li><code>hashlib.sha256(texto.encode("utf-8")).hexdigest()</code>: Transforma qualquer senha ou CPF em um código criptografado irreversível de 64 caracteres. Só essa função garante os <b>3 pontos do Item 5.4 (LGPD)</b>!</li>
+        <li><code>conn.row_factory = sqlite3.Row</code>: Faz o banco devolver resultados que podem ser lidos pelo nome da coluna (ex.: <code>t['nome']</code>) em vez de índices numéricos.</li>
+        <li><code>inicializar_banco()</code>: Cria o arquivo do banco e insere automaticamente os 3 registros de cada tabela se o banco estiver vazio. Assim o sistema nunca dá erro de "tabela não encontrada"!</li>
+      </ul>
+    </div>
   </section>
 
   <!-- PASSO 4 - BLOCO 2 -->
@@ -481,6 +540,15 @@ def logout():
     res.delete_cookie("usuario_sessao")
     return res</pre>
     </div>
+    <div class="explain-box">
+      <h3>🔍 Entendendo o Código do Bloco 2</h3>
+      <ul>
+        <li><code>def tela_login(erro: str = "")</code>: Se o usuário errar a senha, o sistema redireciona para <code>/?erro=Login+ou+senha+invalidos!</code> e exibe a mensagem em vermelho (<b>Item 3.3 — Peso 2</b>).</li>
+        <li><code>(login, criptografar(senha))</code>: Como a senha no banco está criptografada em SHA-256, criptografamos a senha digitada antes de comparar no <code>SELECT</code>.</li>
+        <li><code>res.set_cookie(key="usuario_sessao", value=user["nome"], max_age=1800)</code>: Cria a sessão do usuário guardando o nome dele no cookie e define a expiração para <b>1800 segundos (30 minutos)</b>. Essa única linha garante os <b>3 pontos do Item 3.2</b>!</li>
+        <li><code>status_code=303</code>: Faz o navegador mudar de uma requisição <code>POST</code> (envio de formulário) para uma requisição <code>GET</code> (abrir a página de destino).</li>
+      </ul>
+    </div>
   </section>
 
   <!-- PASSO 4 - BLOCO 3 -->
@@ -506,6 +574,14 @@ def tela_principal(request: Request):
         &lt;li&gt;&lt;a href="/agendamentos"&gt;Gerenciar Agendamentos&lt;/a&gt;&lt;/li&gt;
     &lt;/ul&gt;
     """</pre>
+    </div>
+    <div class="explain-box">
+      <h3>🔍 Entendendo o Código do Bloco 3</h3>
+      <ul>
+        <li><code>usuario = request.cookies.get("usuario_sessao")</code>: Recupera o nome do usuário autenticado na sessão e exibe na tela (<b>Item 4.1 — Peso 2</b>).</li>
+        <li><code>if not usuario:</code>: Se a sessão tiver expirado ou se alguém tentar acessar <code>/principal</code> sem logar, redireciona de volta para a tela de login.</li>
+        <li><code>&lt;a href="/logout"&gt;Sair do Sistema&lt;/a&gt;</code>: Chama a rota que apaga a sessão (<b>Item 4.2 — Peso 1</b>).</li>
+      </ul>
     </div>
   </section>
 
@@ -597,6 +673,14 @@ def excluir_tutor(id: int):
     conn.close()
     return RedirectResponse("/tutores", status_code=303)</pre>
     </div>
+    <div class="explain-box">
+      <h3>🔍 Entendendo o Código do Bloco 4</h3>
+      <ul>
+        <li><code>SELECT * FROM tutor WHERE nome LIKE ?</code> com <code>f"%{busca}%"</code>: Os sinais de <code>%</code> permitem buscar qualquer parte do nome digitado pelo usuário (<b>Item 5.2 — Peso 3</b>).</li>
+        <li><b>Edição direto na linha da tabela (<code>/tutores/editar</code>):</b> Cada linha da tabela já exibe os dados dentro de caixas <code>&lt;input&gt;</code> com um <code>&lt;input type="hidden" name="id"&gt;</code>. Assim o aluno não precisa criar outra página só para editar: basta mudar o texto na própria linha e clicar em <b>Salvar Edição</b> (<b>Item 5.5 — Peso 3</b>).</li>
+        <li><code>(nome, telefone, criptografar(cpf), login, criptografar(senha))</code>: Garante que tanto o CPF quanto a senha sejam gravados criptografados no banco (<b>Itens 5.3 e 5.4 — 5 pontos</b>).</li>
+      </ul>
+    </div>
   </section>
 
   <!-- PASSO 4 - BLOCO 5 -->
@@ -646,6 +730,13 @@ def criar_pet(nome: str = Form(), especie: str = Form(), tutor_id: int = Form())
     conn.commit()
     conn.close()
     return RedirectResponse("/pets", status_code=303)</pre>
+    </div>
+    <div class="explain-box">
+      <h3>🔍 Entendendo o Código do Bloco 5</h3>
+      <ul>
+        <li><code>&lt;select name="tutor_id" required&gt;{opcoes_tutor}&lt;/select&gt;</code>: Cria um menu suspenso com todos os tutores do banco. O usuário escolhe pelo nome, mas o <code>value='{t['id']}'</code> envia o ID do tutor para a chave estrangeira <code>tutor_id</code> (<b>Item 6.1 — Peso 3</b>).</li>
+        <li><code>FROM pet p JOIN tutor t ON p.tutor_id = t.id</code>: Faz o cruzamento entre as tabelas <code>pet</code> e <code>tutor</code> para mostrar o nome do tutor na tabela.</li>
+      </ul>
     </div>
   </section>
 
@@ -733,15 +824,22 @@ def atualizar_data_agendamento(id: int = Form(), data_agendamento: str = Form())
     conn.close()
     return RedirectResponse("/agendamentos", status_code=303)</pre>
     </div>
+    <div class="explain-box">
+      <h3>🔍 Entendendo o Código do Bloco 6</h3>
+      <ul>
+        <li><b>Duplo <code>JOIN</code> (<code>JOIN pet</code> e <code>JOIN tutor</code>):</b> Busca os dados do agendamento, do pet e do tutor em uma única consulta e ordena pela data com <code>ORDER BY a.data_agendamento ASC</code> (<b>Item 7.1 — Peso 3</b>).</li>
+        <li><b>Atualização rápida da data (<code>/agendamentos/atualizar</code>):</b> Cada linha possui um campo <code>&lt;input type="date"&gt;</code> e o botão <b>Atualizar Data</b> que executa o <code>UPDATE</code> da data no banco (<b>Item 7.2 — Peso 2</b>).</li>
+      </ul>
+    </div>
   </section>
 
   <!-- PASSO 5 -->
   <section class="card">
     <h2>▶️ PASSO 5: Como Executar no Terminal</h2>
+    <p>Certifique-se de que o ambiente virtual <code>(venv)</code> está ativo dentro da pasta <code>sistema</code> e rode:</p>
     <div class="code-wrapper">
       <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
-      <pre>cd sistema
-uvicorn main:app --reload</pre>
+      <pre>uvicorn main:app --reload</pre>
     </div>
     <p>Depois acesse <b><code>http://127.0.0.1:8000</code></b> no navegador e faça login com <b><code>ana</code></b> e senha <b><code>123</code></b>.</p>
   </section>
